@@ -13,8 +13,8 @@ $.fn.jSearch = function(action,query,customOptions){
 }
 
 $.fn.jSearch.defaultOptions = {
-	'bgcolor':'yellow',
-	'color':'black',
+	'bgcolor':'#FEFF9F',
+    'color':'#333333',
 	'engine':'literal',
 	'addClass':false,
 	'caseSensitive':false
@@ -46,7 +46,11 @@ jSearch.prototype.doSearch = function(type){
 		else if(type=='regex'){
 			var search2 = new RegExp(query,attr);
 		}
-		return p1.replace(search2,"<span style=\"background-color:"+options.bgcolor +";color:"+options.color+";\">$1</span>")
+		
+		var replace = "<span ";
+		if(options.addClass){ replace += "class=\""+options.addClass+"\" "; }
+		replace += "style=\"background-color:"+options.bgcolor +";color:"+options.color+";\">$1</span>";
+		return p1.replace(search2,replace);
 	});
 	this.input.html(result);
 }
