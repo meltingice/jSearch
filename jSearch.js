@@ -14,7 +14,8 @@ $.fn.jSearch.defaultOptions = {
 	'bgcolor':'yellow',
 	'color':'black',
 	'engine':'literal',
-	'recursive':false
+	'addClass':false,
+	'caseSensitive':false
 }
 
 function jSearch(input,query,options){
@@ -31,9 +32,26 @@ jSearch.prototype.init = function(){
 	if(this.options.engine == 'literal'){
 		this.literalSearch();
 	}
+	else if(this.options.engine == 'regex'){
+		this.regexSearch();
+	}
 }
 
 jSearch.prototype.literalSearch = function(){
+	if(this.options.caseSensitive){
+		var attr = "g";
+	}
+	else{
+		var attr = "gi";
+	}
+	
+	var search = new RegExp("("+this.query+")",attr);
+	var replace = "<span style=\"background-color:"+this.options.bgcolor +";color:"+this.options.color+";\">$1</span>";
+	var result = this.html.replace(search,replace);
+	this.input.html(result);
+}
+
+jSearch.prototype.regexSearch = function(){
 	
 }
 
