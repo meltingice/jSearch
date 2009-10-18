@@ -5,9 +5,11 @@
 
 (function($){
 
-$.fn.jSearch = function(query,customOptions){
-	var options = $.extend({},$.fn.jSearch.defaultOptions,customOptions);
-	new jSearch($(this),query,options);
+$.fn.jSearch = function(action,query,customOptions){
+	if(action == 'search'){
+		var options = $.extend({},$.fn.jSearch.defaultOptions,customOptions);
+		new jSearch($(this),query,options);
+	}
 }
 
 $.fn.jSearch.defaultOptions = {
@@ -29,30 +31,33 @@ function jSearch(input,query,options){
 jSearch.prototype.init = function(){
 	this.html = this.input.html();
 	
-	if(this.options.engine == 'literal'){
-		this.literalSearch();
-	}
-	else if(this.options.engine == 'regex'){
-		this.regexSearch();
-	}
+	this.doSearch(this.options.engine);
 }
 
-jSearch.prototype.literalSearch = function(){
-	if(this.options.caseSensitive){
-		var attr = "g";
-	}
-	else{
-		var attr = "gi";
-	}
-	
-	var search = new RegExp("("+this.query+")",attr);
-	var replace = "<span style=\"background-color:"+this.options.bgcolor +";color:"+this.options.color+";\">$1</span>";
-	var result = this.html.replace(search,replace);
+jSearch.prototype.doSearch = function(type){
+	var options = this.options;
+	var query = this.query;
+	var attr = this.getFlags();
+	var search = new RegExp("([^><]+?)(?=<|$)","g");
+	var result = this.html.replace(search,function(str, p1, offset, s){
+		if(type=='literal'){
+			var search2 = new RegExp("("+query+")",attr);
+		}
+		else if(type=='regex'){
+			var search2 = new RegExp(query,attr);
+		}
+		return p1.replace(search2,"<span style=\"background-color:"+options.bgcolor +";color:"+options.color+";\">$1</span>")
+	});
 	this.input.html(result);
 }
 
-jSearch.prototype.regexSearch = function(){
-	
+jSearch.prototype.getFlags = function(){
+	if(this.options.caseSensitive){
+		return "g";
+	}
+	else{
+		return "gi";
+	}
 }
 
 })(jQuery);
