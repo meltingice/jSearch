@@ -8,13 +8,16 @@
 $.fn.jSearch = function(action,query,customOptions){
 	if(action == 'search'){
 		var options = $.extend({},$.fn.jSearch.defaultOptions,customOptions);
-		new jSearch($(this),query,options);
+		new jSearch($(this),query,options).doSearch(options.engine);
+	}
+	if(action == 'clear'){
+		new jSearch($(this),null,options).clearResults();
 	}
 }
 
 $.fn.jSearch.defaultOptions = {
 	'bgcolor':'#FEFF9F',
-    'color':'#333333',
+	'color':'#333333',
 	'engine':'literal',
 	'addClass':false,
 	'caseSensitive':false
@@ -30,8 +33,7 @@ function jSearch(input,query,options){
 
 jSearch.prototype.init = function(){
 	this.html = this.input.html();
-	
-	this.doSearch(this.options.engine);
+	return this;
 }
 
 jSearch.prototype.doSearch = function(type){
@@ -47,9 +49,9 @@ jSearch.prototype.doSearch = function(type){
 			var search2 = new RegExp(query,attr);
 		}
 		
-		var replace = "<span ";
-		if(options.addClass){ replace += "class=\""+options.addClass+"\" "; }
-		replace += "style=\"background-color:"+options.bgcolor +";color:"+options.color+";\">$1</span>";
+		var replace = "<span class=\"jsearch-result";
+		if(options.addClass){ replace += " "+options.addClass; }
+		replace += "\" style=\"background-color:"+options.bgcolor +";color:"+options.color+";\">$1</span>";
 		return p1.replace(search2,replace);
 	});
 	this.input.html(result);
@@ -61,6 +63,14 @@ jSearch.prototype.getFlags = function(){
 	}
 	else{
 		return "gi";
+	}
+}
+
+jSearch.prototype.clearResults = function(){
+	while($('.jsearch-result').length > 0){
+		$.each(this.input.find('.jsearch-result'),function(){
+			$(this).replaceWith($(this).html());
+		});
 	}
 }
 
