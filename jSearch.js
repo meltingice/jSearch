@@ -32,6 +32,7 @@ function jSearch(input,query,options){
 }
 
 jSearch.prototype.init = function(){
+	this.clearResults();
 	this.html = this.input.html();
 	return this;
 }
@@ -72,6 +73,8 @@ jSearch.prototype.clearResults = function(){
 			$(this).replaceWith($(this).html());
 		});
 	}
+	
+	return this;
 }
 
 })(jQuery);
