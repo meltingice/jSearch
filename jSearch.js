@@ -6,12 +6,20 @@
 (function($){
 
 $.fn.jSearch = function(action,query,customOptions){
+	var options = $.extend({},$.fn.jSearch.defaultOptions,customOptions);
 	if(action == 'search'){
-		var options = $.extend({},$.fn.jSearch.defaultOptions,customOptions);
 		new jSearch($(this),query,options).doSearch(options.engine);
 	}
 	if(action == 'clear'){
 		new jSearch($(this),null,options).clearResults();
+	}
+	if(action == 'autosearch'){
+		return new jSearch($(this),null,options).autoReferSearch();
+	}
+	
+	/* Simply returns the jSearch object */
+	if(action == 'get'){
+		return new jSearch($(this),null,options);
 	}
 }
 
@@ -41,6 +49,7 @@ jSearch.prototype.doSearch = function(type){
 	var options = this.options;
 	var query = this.query;
 	var attr = this.getFlags();
+	
 	var search = new RegExp("([^><]+?)(?=<|$)","g");
 	var result = this.html.replace(search,function(str, p1, offset, s){
 		if(type=='literal'){
@@ -75,6 +84,28 @@ jSearch.prototype.clearResults = function(){
 	}
 	
 	return this;
+}
+
+jSearch.prototype.autoReferSearch = function(){
+	var search = this.referralDetect();
+	if(!search) return;
+	this.query = search.query;
+	
+	this.doSearch('literal');
+	
+	return search;
+}
+
+jSearch.prototype.referralDetect = function(){
+	if(!document.referrer || document.referrer == "") return;
+	
+	var results = document.referrer.match(/http:\/\/(?:[A-Za-z0-9]+\.)?(google|bing|yahoo|ask)\.(?:.+?)&?(?:q|p)=([^&]+)/);
+	if(results){
+		return {"engine":results[1], "query": results[2]};
+	}
+	else{
+		return false;
+	}
 }
 
 })(jQuery);
